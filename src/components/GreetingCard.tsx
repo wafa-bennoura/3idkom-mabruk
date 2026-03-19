@@ -347,7 +347,7 @@ const GreetingCard = () => {
   }, [step]);
 
   const handleEnvelopeClick = useCallback(() => {
-    setStep("opening");
+    setStep("card");
   }, []);
 
   const handleOpeningComplete = useCallback(() => {
@@ -384,9 +384,7 @@ const GreetingCard = () => {
         </>
       )}
 
-      {step === "opening" && (
-        <OpeningEnvelope onComplete={handleOpeningComplete} />
-      )}
+
 
       {step === "card" && (
         <>
