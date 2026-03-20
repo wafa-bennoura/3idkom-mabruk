@@ -9,8 +9,8 @@ const MUSIC_CONFIG = {
   volume: 0.3, // volume level (0 to 1)
   loop: true, // whether to loop the music
   autoPlay: true, // whether to auto-play when card opens
-  loopStartTime: 28, // seconds to jump to when looping (0 = start from beginning)
-  startTime: 28, // seconds to start playing from
+  loopStartTime: 0, // seconds to jump to when looping (0 = start from beginning)
+  startTime: 0, // seconds to start playing from
 };
 
 const BALLOON_COLORS = [
@@ -682,7 +682,7 @@ const GreetingCard = () => {
         <>
           <audio
             ref={audioRef}
-            src="/اغنية_العيد_اتانا_بالفرحة(48k).m4a"
+            src="/العيدُ_قد_أتانا_-_المنشد__عبدالله_السفلي(256k).mp3"
             loop={MUSIC_CONFIG.loop}
             preload="auto"
           />
