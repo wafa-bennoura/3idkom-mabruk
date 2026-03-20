@@ -291,17 +291,36 @@ const GreetingCardContent = ({ language, setLanguage, isMuted, toggleMute }: { l
   const handleDownload = async () => {
     if (cardRef.current) {
       try {
-        // Hide the download button before capturing
-        const buttons = cardRef.current.querySelectorAll('button');
-        buttons.forEach(btn => btn.style.display = 'none');
+        // Create a clone of the card for downloading
+        const clonedCard = cardRef.current.cloneNode(true) as HTMLElement;
         
-        const canvas = await html2canvas(cardRef.current, {
-          backgroundColor: "#ffffff",
-          scale: 2,
+        // Remove animations from the clone
+        clonedCard.querySelectorAll("*").forEach((el) => {
+          const element = el as HTMLElement;
+          element.style.animation = "none";
+          element.style.opacity = "1";
+          element.style.animationFillMode = "unset";
         });
         
-        // Show the buttons again
-        buttons.forEach(btn => btn.style.display = 'block');
+        // Create a temporary container
+        const tempContainer = document.createElement("div");
+        tempContainer.style.position = "fixed";
+        tempContainer.style.left = "-9999px";
+        tempContainer.style.top = "-9999px";
+        tempContainer.appendChild(clonedCard);
+        document.body.appendChild(tempContainer);
+        
+        // Wait a moment for the DOM to update
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        const canvas = await html2canvas(clonedCard, {
+          backgroundColor: "#ffffff",
+          scale: 2,
+          logging: false,
+        });
+        
+        // Clean up
+        document.body.removeChild(tempContainer);
         
         const link = document.createElement("a");
         link.href = canvas.toDataURL("image/png");
@@ -314,7 +333,7 @@ const GreetingCardContent = ({ language, setLanguage, isMuted, toggleMute }: { l
   };
 
   return (
-    <>
+    <div className="flex flex-col items-center justify-center w-full">
       <div
         ref={cardRef}
         className="relative rounded-3xl p-4 md:p-6 animate-card-expand max-w-xs w-full mx-4 backdrop-blur-sm"
@@ -503,40 +522,41 @@ const GreetingCardContent = ({ language, setLanguage, isMuted, toggleMute }: { l
           >
             {isSpecialGuest ? (language === "en" ? specialGreeting.en.closing : specialGreeting.ar.closing) : (language === "en" ? translations.en.closing : translations.ar.closing)}
           </p>
+        </>
+      )}
+      </div>
 
+      {showGreeting && (
+        <div className="flex flex-col items-center gap-2 mt-4">
           <button
             onClick={handleDownload}
-            className="w-full mt-3 py-2 rounded-lg font-semibold transition-all hover:scale-105 active:scale-95 flex items-center justify-center gap-2 animate-text-reveal text-xs"
+            className="py-2 px-4 rounded-lg font-semibold transition-all hover:scale-105 active:scale-95 flex items-center justify-center gap-2 text-xs"
             style={{
               background: "linear-gradient(135deg, #FF69B4 0%, #8A2BE2 100%)",
               color: "white",
               fontFamily: "'Quicksand', sans-serif",
               boxShadow: "0 4px 15px rgba(138, 43, 226, 0.4)",
-              animationDelay: "1.8s",
-              opacity: 0,
-              animationFillMode: "forwards",
             }}
           >
             <Download size={16} />
             {translations[language].download}
           </button>
-        </>
-      )}
-      </div>
 
-      <button
-        onClick={toggleMute}
-        className="mt-4 transition-all hover:scale-110 active:scale-95"
-        style={{
-          background: "transparent",
-          border: "none",
-          cursor: "pointer",
-        }}
-        title={isMuted ? "Unmute" : "Mute"}
-      >
-        {isMuted ? <VolumeX size={24} color="#ef4444" /> : <Volume2 size={24} color="#10b981" />}
-      </button>
-    </>
+          <button
+            onClick={toggleMute}
+            className="transition-all hover:scale-110 active:scale-95"
+            style={{
+              background: "transparent",
+              border: "none",
+              cursor: "pointer",
+            }}
+            title={isMuted ? "Unmute" : "Mute"}
+          >
+            {isMuted ? <VolumeX size={24} color="#ef4444" /> : <Volume2 size={24} color="#10b981" />}
+          </button>
+        </div>
+      )}
+    </div>
   );
 };
 
@@ -545,7 +565,7 @@ type Step = "envelope" | "opening" | "card";
 const GreetingCard = () => {
   const [step, setStep] = useState<Step>("envelope");
   const [isShaking, setIsShaking] = useState(false);
-  const [language, setLanguage] = useState<"en" | "ar">("ar");
+  const [language, setLanguage] = useState<"en" | "ar">("en");
 
   useEffect(() => {
     if (step !== "envelope") return;
