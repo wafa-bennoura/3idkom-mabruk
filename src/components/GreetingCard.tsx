@@ -244,8 +244,8 @@ const GreetingCardContent = ({ language, setLanguage, isMuted, toggleMute }: { l
   const [showGreeting, setShowGreeting] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
 
-  // Check if name is "Ilyes" (case-insensitive)
-  const isSpecialGuest = visitorName.toLowerCase() === "ilyes";
+  // Check if name is "Ilyes" (case-insensitive) or Arabic "إلياس"
+  const isSpecialGuest = visitorName.toLowerCase() === "ilyes" || visitorName === "إلياس";
 
   const translations = {
     en: {
@@ -511,22 +511,6 @@ const GreetingCardContent = ({ language, setLanguage, isMuted, toggleMute }: { l
             <Download size={16} />
             {translations[language].download}
           </button>
-
-          <button
-            onClick={toggleMute}
-            className="absolute top-4 right-4 transition-all hover:scale-110 active:scale-95 animate-text-reveal"
-            style={{
-              background: "transparent",
-              border: "none",
-              cursor: "pointer",
-              animationDelay: "1.9s",
-              opacity: 0,
-              animationFillMode: "forwards",
-            }}
-            title={isMuted ? "Unmute" : "Mute"}
-          >
-            {isMuted ? <VolumeX size={20} color="#ef4444" /> : <Volume2 size={20} color="#10b981" />}
-          </button>
         </>
       )}
     </div>
@@ -669,7 +653,21 @@ const GreetingCard = () => {
             />
           ))}
           <Hearts />
-          <GreetingCardContent language={language} setLanguage={setLanguage} isMuted={isMuted} toggleMute={toggleMute} />
+          <div className="relative">
+            <GreetingCardContent language={language} setLanguage={setLanguage} isMuted={isMuted} toggleMute={toggleMute} />
+            <button
+              onClick={toggleMute}
+              className="absolute -bottom-16 left-1/2 transform -translate-x-1/2 transition-all hover:scale-110 active:scale-95"
+              style={{
+                background: "transparent",
+                border: "none",
+                cursor: "pointer",
+              }}
+              title={isMuted ? "Unmute" : "Mute"}
+            >
+              {isMuted ? <VolumeX size={24} color="#ef4444" /> : <Volume2 size={24} color="#10b981" />}
+            </button>
+          </div>
         </>
       )}
     </div>
