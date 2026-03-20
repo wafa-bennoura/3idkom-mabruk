@@ -291,10 +291,18 @@ const GreetingCardContent = ({ language, setLanguage, isMuted, toggleMute }: { l
   const handleDownload = async () => {
     if (cardRef.current) {
       try {
+        // Hide the download button before capturing
+        const buttons = cardRef.current.querySelectorAll('button');
+        buttons.forEach(btn => btn.style.display = 'none');
+        
         const canvas = await html2canvas(cardRef.current, {
           backgroundColor: "#ffffff",
           scale: 2,
         });
+        
+        // Show the buttons again
+        buttons.forEach(btn => btn.style.display = 'block');
+        
         const link = document.createElement("a");
         link.href = canvas.toDataURL("image/png");
         link.download = `eid-card-${visitorName || "greeting"}.png`;
@@ -306,21 +314,22 @@ const GreetingCardContent = ({ language, setLanguage, isMuted, toggleMute }: { l
   };
 
   return (
-    <div
-      ref={cardRef}
-      className="relative rounded-3xl p-4 md:p-6 animate-card-expand max-w-xs w-full mx-4 backdrop-blur-sm"
-      style={{
-        background: isSpecialGuest 
-          ? "linear-gradient(135deg, rgba(30, 64, 175, 0.15) 0%, rgba(59, 130, 246, 0.12) 25%, rgba(96, 165, 250, 0.15) 50%, rgba(147, 197, 253, 0.12) 75%, rgba(191, 219, 254, 0.15) 100%)"
-          : "linear-gradient(135deg, rgba(255, 105, 180, 0.15) 0%, rgba(138, 43, 226, 0.12) 25%, rgba(30, 144, 255, 0.15) 50%, rgba(50, 205, 50, 0.12) 75%, rgba(255, 215, 0, 0.15) 100%)",
-        boxShadow: isSpecialGuest
-          ? "0 25px 60px -15px rgba(30, 64, 175, 0.4), inset 0 1px 0 rgba(255,255,255,0.8), 0 0 40px rgba(30, 64, 175, 0.2)"
-          : "0 25px 60px -15px rgba(138, 43, 226, 0.4), inset 0 1px 0 rgba(255,255,255,0.8), 0 0 40px rgba(138, 43, 226, 0.2)",
-        border: isSpecialGuest
-          ? "2px solid rgba(30, 64, 175, 0.4)"
-          : "2px solid rgba(138, 43, 226, 0.4)",
-      }}
-    >
+    <>
+      <div
+        ref={cardRef}
+        className="relative rounded-3xl p-4 md:p-6 animate-card-expand max-w-xs w-full mx-4 backdrop-blur-sm"
+        style={{
+          background: isSpecialGuest 
+            ? "linear-gradient(135deg, rgba(30, 64, 175, 0.15) 0%, rgba(59, 130, 246, 0.12) 25%, rgba(96, 165, 250, 0.15) 50%, rgba(147, 197, 253, 0.12) 75%, rgba(191, 219, 254, 0.15) 100%)"
+            : "linear-gradient(135deg, rgba(255, 105, 180, 0.15) 0%, rgba(138, 43, 226, 0.12) 25%, rgba(30, 144, 255, 0.15) 50%, rgba(50, 205, 50, 0.12) 75%, rgba(255, 215, 0, 0.15) 100%)",
+          boxShadow: isSpecialGuest
+            ? "0 25px 60px -15px rgba(30, 64, 175, 0.4), inset 0 1px 0 rgba(255,255,255,0.8), 0 0 40px rgba(30, 64, 175, 0.2)"
+            : "0 25px 60px -15px rgba(138, 43, 226, 0.4), inset 0 1px 0 rgba(255,255,255,0.8), 0 0 40px rgba(138, 43, 226, 0.2)",
+          border: isSpecialGuest
+            ? "2px solid rgba(30, 64, 175, 0.4)"
+            : "2px solid rgba(138, 43, 226, 0.4)",
+        }}
+      >
       <div className="absolute top-3 left-3 text-2xl" style={{ animation: "sparkle 2s ease-in-out infinite" }}>✨</div>
       <div className="absolute top-3 right-3 text-2xl" style={{ animation: "sparkle 2s ease-in-out 0.5s infinite" }}>✨</div>
       <div className="absolute bottom-3 left-3 text-2xl" style={{ animation: "sparkle 2s ease-in-out 1s infinite" }}>🌟</div>
@@ -513,7 +522,21 @@ const GreetingCardContent = ({ language, setLanguage, isMuted, toggleMute }: { l
           </button>
         </>
       )}
-    </div>
+      </div>
+
+      <button
+        onClick={toggleMute}
+        className="mt-4 transition-all hover:scale-110 active:scale-95"
+        style={{
+          background: "transparent",
+          border: "none",
+          cursor: "pointer",
+        }}
+        title={isMuted ? "Unmute" : "Mute"}
+      >
+        {isMuted ? <VolumeX size={24} color="#ef4444" /> : <Volume2 size={24} color="#10b981" />}
+      </button>
+    </>
   );
 };
 
@@ -522,7 +545,7 @@ type Step = "envelope" | "opening" | "card";
 const GreetingCard = () => {
   const [step, setStep] = useState<Step>("envelope");
   const [isShaking, setIsShaking] = useState(false);
-  const [language, setLanguage] = useState<"en" | "ar">("en");
+  const [language, setLanguage] = useState<"en" | "ar">("ar");
 
   useEffect(() => {
     if (step !== "envelope") return;
@@ -653,21 +676,7 @@ const GreetingCard = () => {
             />
           ))}
           <Hearts />
-          <div className="relative">
-            <GreetingCardContent language={language} setLanguage={setLanguage} isMuted={isMuted} toggleMute={toggleMute} />
-            <button
-              onClick={toggleMute}
-              className="absolute -bottom-16 left-1/2 transform -translate-x-1/2 transition-all hover:scale-110 active:scale-95"
-              style={{
-                background: "transparent",
-                border: "none",
-                cursor: "pointer",
-              }}
-              title={isMuted ? "Unmute" : "Mute"}
-            >
-              {isMuted ? <VolumeX size={24} color="#ef4444" /> : <Volume2 size={24} color="#10b981" />}
-            </button>
-          </div>
+          <GreetingCardContent language={language} setLanguage={setLanguage} isMuted={isMuted} toggleMute={toggleMute} />
         </>
       )}
     </div>
